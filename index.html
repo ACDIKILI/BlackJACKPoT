@@ -21,7 +21,6 @@
         .deck-box { width: 80px; height: 110px; background: linear-gradient(135deg, #c0392b, #8e44ad); border: 3px solid white; border-radius: 8px; display: flex; justify-content: center; align-items: center; color: white; font-size: 40px; cursor: pointer; z-index: 10; }
         .total-score { color: #f1c40f; font-size: 24px; font-weight: bold; text-shadow: 2px 2px 4px #000; background: rgba(0,0,0,0.4); padding: 5px 20px; border-radius: 15px; z-index: 60; text-align: center; }
         
-        /* KARİYER PANELİ */
         .user-panel { position: absolute; top: 10px; right: 20px; color: white; font-size: 11px; text-align: right; z-index: 100; }
         .login-screen { position: absolute; inset: 0; background: rgba(0,0,0,0.95); z-index: 3000; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 32px; padding: 20px; text-align: center; }
         .login-input { padding: 12px; border-radius: 8px; border: none; margin: 10px 0; width: 80%; font-size: 18px; text-transform: uppercase; }
@@ -44,8 +43,8 @@
 <div class="phone" id="gameArea">
     <div id="loginScreen" class="login-screen">
         <h2 style="color:gold;">BlackJACK Pot</h2>
-        <p style="color:white; font-size:12px;">OYUNCU ADI (A-Z, 0-9):</p>
-        <input type="text" id="playerName" class="login-input" maxlength="10" placeholder="İSİM YAZIN...">
+        <p style="color:white; font-size:12px;">OYUNCU ADI:</p>
+        <input type="text" id="playerName" class="login-input" maxlength="12" placeholder="İSİM YAZIN...">
         <p id="loginError" style="color:red; font-size:10px; height:15px;"></p>
         <button onclick="checkPlayer()" style="padding:10px 30px; background:gold; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">GİRİŞ YAP</button>
     </div>
@@ -79,10 +78,10 @@
         <div class="modal">
             <h2 style="color:gold;">KUTSAL İNFO</h2>
             <div style="font-size:12px; text-align:left; line-height:1.4; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px;">
-                • <b>KARİYER:</b> Her maç puanın toplamına eklenir.<br>
-                • <b>İSİM KURALI:</b> İngiliz alfabesi kullanılır. Başka ismi barındıran isimler reddedilir.<br>
+                • <b>KARİYER:</b> Her oyun puanın toplamına eklenir.<br>
+                • <b>İSİM KURALI:</b> İngiliz alfabesi önerilir. Başka ismi barındıran isimler reddedilir.<br>
                 • <b>HOKUS POKUS:</b> Kartlar havada simge değiştirir.<br>
-                • <b>20/21:</b> Özel bonuslar ve kilitler aktiftir.
+                • <b>30 Saniye:</b> Zaman dolmadan en iyi yerleşimi yap!
             </div>
             <button onclick="modalKapat()" style="margin-top:15px; padding:10px 20px; background:gold; border:none; border-radius:10px; font-weight:bold;">OYUNA DÖN</button>
         </div>
@@ -100,36 +99,26 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let currentPlayer = "", currentCareerScore = 0;
+    let currentPlayer = "", currentCareerScore = 0, isGameActive = false;
     const mults = { maca: 4, kupa: 3, sinek: 2, karo: 1 };
     let tPuan = 0, sPuan = {maca:0, kupa:0, sinek:0, karo:0}, aktif = {maca:true, kupa:true, sinek:true, karo:true};
     let isAnim = false, gameOver = false, saniye = 30, timerStarted = false, currentPosX = 0;
 
-    // KARİYER SİSTEMİ GİRİŞ KONTROLÜ
     function checkPlayer() {
         let input = document.getElementById('playerName').value.trim().toUpperCase();
         const errorEl = document.getElementById('loginError');
-        
-        // Kural: İngiliz Alfabesi ve Karakter Kontrolü
-        if(!/^[A-Z0-9]+$/.test(input)) {
-            errorEl.innerText = "Sadece A-Z ve 0-9 arası kullanın!"; return;
-        }
+        if(!input) { errorEl.innerText = "Lütfen bir isim yazın!"; return; }
 
         db.ref('career_players').once('value', snapshot => {
             let players = snapshot.val() || {};
-            let matchFound = false;
-            let barindirma = false;
-
+            let matchFound = false, barindirma = false;
             for(let id in players) {
                 let existingName = players[id].name;
                 if(existingName === input) { matchFound = true; currentCareerScore = players[id].score || 0; break; }
-                // KUTSAL KURAL: Mevcut isimleri barındırmayacak (Anti-Barındırma)
                 if(input.includes(existingName) || existingName.includes(input)) { barindirma = true; break; }
             }
-
-            if(barindirma && !matchFound) {
-                errorEl.innerText = "Benzer bir isim zaten mevcut!";
-            } else {
+            if(barindirma && !matchFound) { errorEl.innerText = "Benzer bir isim zaten mevcut!"; } 
+            else {
                 currentPlayer = input;
                 if(!matchFound) db.ref('career_players/' + input).set({name: input, score: 0});
                 document.getElementById('loginScreen').style.display = 'none';
@@ -140,6 +129,28 @@
         });
     }
 
+    function baslat() {
+        if(gameOver) { resetBoard(); return; }
+        if(!timerStarted) { startTimer(); document.getElementById('timerGlow').classList.add('is-running'); }
+        kartCek();
+    }
+
+    function resetBoard() {
+        tPuan = 0; saniye = 30; gameOver = false; timerStarted = false; isAnim = false;
+        sPuan = {maca:0, kupa:0, sinek:0, karo:0}; aktif = {maca:true, kupa:true, sinek:true, karo:true};
+        document.querySelectorAll('.slot').forEach(el => {
+            el.classList.remove('perfect-21', 'closed-slot');
+            el.querySelector('.slot-score').innerText = '0';
+            el.querySelector('.bust-x').style.display = 'none';
+        });
+        document.getElementById('toplam').innerText = 'PUAN: 0';
+        document.getElementById('timerDisplay').innerText = '30';
+        document.getElementById('timerGlow').classList.remove('is-running');
+        let oldFinal = document.querySelector('.score-final');
+        if(oldFinal) oldFinal.remove();
+        document.getElementById('deck').style.display = 'flex';
+    }
+
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playMetallicTick(sec) {
         const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
@@ -148,11 +159,6 @@
         gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
         osc.connect(gain); gain.connect(audioCtx.destination);
         osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-    }
-
-    function baslat() {
-        if(!timerStarted) { startTimer(); document.getElementById('timerGlow').classList.add('is-running'); }
-        kartCek();
     }
 
     function startTimer() {
@@ -232,21 +238,16 @@
         gameOver = true; document.getElementById('deck').style.display = 'none';
         let bonus = 0; if(tPuan >= 50) bonus = 10 * Math.pow(2, Math.min(Math.floor(tPuan / 50) - 1, 10));
         tPuan += bonus;
-        
-        // KARİYER GÜNCELLEME
         currentCareerScore += tPuan;
         db.ref('career_players/' + currentPlayer).update({score: currentCareerScore});
+        document.getElementById('careerScore').innerText = currentCareerScore;
 
-        // DÜNYA TOP 5 (TOPLAM KARİYER PUANINA GÖRE)
         db.ref('career_players').orderByChild('score').limitToLast(5).once('value', snapshot => {
-            let list = [];
-            snapshot.forEach(child => { list.push(child.val()); });
-            list.reverse();
-            
+            let list = []; snapshot.forEach(child => { list.push(child.val()); }); list.reverse();
             const dunyaHtml = list.map((r, i) => `${i+1}. ${r.name}: ${r.score}`).join('<br>');
             const box = document.createElement('div');
             box.className = 'score-final';
-            box.innerHTML = `<small>${msg}</small><br>BU MAÇ: ${tPuan}<br><span style='color:gold'>TOPLAM: ${currentCareerScore}</span><br><hr><div style='font-size:11px; color:gold; line-height:1.2'>DÜNYA KARİYER TOP 5:<br>${dunyaHtml}</div><br><button onclick="location.reload()" style="padding:5px 15px; border-radius:5px; border:none; background:gold; font-weight:bold; cursor:pointer;">YENİ MAÇ</button>`;
+            box.innerHTML = `<small>${msg}</small><br>BU OYUN: ${tPuan}<br><span style='color:gold'>KARİYER: ${currentCareerScore}</span><br><hr><div style='font-size:11px; color:gold; line-height:1.2'>DÜNYA KARİYER TOP 5:<br>${dunyaHtml}</div><br><button onclick="resetBoard()" style="padding:10px 20px; border-radius:10px; border:none; background:gold; font-weight:bold; cursor:pointer;">YENİ OYUN</button>`;
             document.getElementById('gameArea').appendChild(box);
         });
     }

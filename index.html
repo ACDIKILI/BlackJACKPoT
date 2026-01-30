@@ -2,80 +2,104 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>BlackJACK Pot - KUTSAL DÖNÜŞ</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BlackJACK 4x4 - Kariyer & Dünya Klasmanı</title>
     <style>
-        body { background-color: #1a1a1a; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: sans-serif; overflow: hidden; touch-action: none; }
+        body { background-color: #1a1a1a; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: sans-serif; overflow: hidden; touch-action: manipulation; }
         .phone { width: 100%; max-width: 360px; height: 100vh; max-height: 640px; background: radial-gradient(circle, #1a5d1a 0%, #0a3d0a 100%); border: 8px solid #333; border-radius: 40px; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.8); display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
-        .game-title { position: absolute; bottom: 205px; color: gold; font-size: 22px; font-weight: bold; text-shadow: 0 0 10px rgba(255,215,0,0.5); letter-spacing: 2px; }
-        .timer-container { position: absolute; left: 35px; top: 38%; transform: translateY(-50%); width: 70px; height: 70px; display: flex; justify-content: center; align-items: center; }
-        .timer-circle { position: absolute; inset: 0; border: 4px solid rgba(255,255,255,0.1); border-radius: 50%; }
-        .timer-glow { position: absolute; inset: -4px; border: 4px solid transparent; border-top-color: #ff4d4d; border-radius: 50%; }
-        .is-running { animation: rotateGlow 2s linear infinite; }
-        @keyframes rotateGlow { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .timer-text { color: #ff4d4d; font-size: 24px; font-weight: bold; font-family: monospace; z-index: 5; }
-        .info-btn { width: 35px; height: 35px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 2px solid white; color: white; display: flex; justify-content: center; align-items: center; font-weight: bold; cursor: pointer; position: absolute; right: 35px; top: 38%; transform: translateY(-50%); font-style: italic; z-index: 20; }
-        .header-area { height: 25%; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        .deck-box { width: 80px; height: 110px; background: linear-gradient(135deg, #c0392b, #8e44ad); border: 3px solid white; border-radius: 8px; display: flex; justify-content: center; align-items: center; color: white; font-size: 40px; cursor: pointer; z-index: 10; }
-        .restart-btn { width: 90px; height: 110px; background: #2c3e50; border: 3px solid white; border-radius: 10px; color: white; font-weight: bold; font-size: 14px; text-align: center; display: none; z-index: 500; cursor: pointer; justify-content: center; align-items: center; }
-        .total-score { color: #f1c40f; font-size: 26px; font-weight: bold; text-shadow: 2px 2px 4px #000; background: rgba(0,0,0,0.4); padding: 5px 20px; border-radius: 15px; z-index: 60; text-align: center; }
-        .score-final { position: absolute; top: 45% !important; left: 50% !important; transform: translate(-50%, -50%) scale(1.1); border: 2px solid gold; background: rgba(0,0,0,0.95) !important; box-shadow: 0 0 40px gold; z-index: 1500; width: 280px; }
-        .slots { width: 100%; display: flex; justify-content: space-around; padding: 0 5px; position: absolute; bottom: 80px; box-sizing: border-box; }
-        .slot { width: 22%; height: 115px; border: 2px dashed rgba(255,255,255,0.3); border-radius: 10px; display: flex; flex-direction: column; align-items: center; color: white; position: relative; padding-top: 5px; cursor: pointer; }
+        
+        /* KARİYER GİRİŞ EKRANI */
+        #loginOverlay { position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; border-radius: 35px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: gold; text-align: center; padding: 20px; box-sizing: border-box; }
+        #loginOverlay input { background: #222; border: 2px solid gold; color: white; padding: 12px; border-radius: 10px; font-size: 18px; width: 85%; text-transform: uppercase; margin: 15px 0; text-align: center; }
+        #loginOverlay button { background: gold; color: black; border: none; padding: 12px 40px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; transition: transform 0.2s; }
+        #loginOverlay button:active { transform: scale(0.95); }
+
+        .header-area { height: 25%; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; margin-top: 10px; }
+        .deck-box { width: 80px; height: 110px; background: linear-gradient(135deg, #c0392b, #8e44ad); border: 3px solid white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; color: white; font-size: 40px; cursor: pointer; z-index: 10; }
+        .restart-btn { width: 100px; height: 110px; padding: 5px; font-size: 14px; background: gold; border: 3px solid white; border-radius: 10px; cursor: pointer; display: none; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.4); position: absolute; z-index: 50; text-align: center; }
+        .info-btn { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 2px solid white; color: white; display: flex; justify-content: center; align-items: center; font-weight: bold; cursor: pointer; position: absolute; right: 45px; top: 40%; font-style: italic; font-family: serif; z-index: 20; }
+        .score-area { height: 10%; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
+        .total-score { color: #f1c40f; font-size: 28px; font-weight: bold; text-shadow: 2px 2px 4px #000; background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 15px; }
+        .user-career-tag { color: #fff; font-size: 11px; margin-top: 5px; background: rgba(0,0,0,0.5); padding: 2px 10px; border-radius: 10px; border: 1px solid rgba(255,215,0,0.3); }
+        .center-action-area { height: 25%; width: 280px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .static-pattern { width: 60px; height: 60px; background: rgba(255, 215, 0, 0.1); border: 2px solid gold; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
+        .static-pattern::after { content: "♠♥♣♦"; color: gold; font-weight: bold; font-size: 16px; }
+        .leaderboard { width: 100%; background: rgba(0,0,0,0.85); border-radius: 10px; padding: 10px; color: gold; display: none; border: 1px solid gold; box-shadow: 0 0 20px rgba(0,0,0,0.5); position: absolute; z-index: 60; }
+        .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 90; border-radius: 40px; }
+        .modal { position: absolute; top: 5%; left: 50%; transform: translateX(-50%); width: 85%; background: rgba(10, 61, 10, 0.98); border: 3px solid gold; border-radius: 20px; padding: 15px; color: white; z-index: 100; box-shadow: 0 0 40px rgba(0,0,0,1); text-align: center; }
+        .game-title-frame { border: 2px solid gold; padding: 4px 15px; border-radius: 12px; background: rgba(0,0,0,0.5); color: gold; font-weight: bold; font-size: 14px; letter-spacing: 2px; margin-bottom: 10px; }
+        .slots { width: 100%; display: flex; justify-content: space-around; padding: 0 5px; box-sizing: border-box; }
+        .slot { width: 22%; height: 115px; border: 2px dashed rgba(255,255,255,0.3); border-radius: 10px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 5px; color: white; cursor: pointer; }
+        .mult-tag { font-size: 9px; color: gold; margin-bottom: 2px; font-weight: bold; }
+        .suit-icon { font-size: 35px; line-height: 1; margin-bottom: 2px; pointer-events: none; }
         .slot-score { font-size: 24px; font-weight: bold; pointer-events: none; }
-        .bust-x { position: absolute; inset: 0; background: rgba(210, 0, 0, 0.95); display: none; justify-content: center; align-items: center; font-size: 14px; text-align:center; font-weight: bold; border-radius: 8px; color: white; z-index: 5; pointer-events: none; }
-        .perfect-21 { border: 3px solid gold !important; background: rgba(255, 215, 0, 0.3) !important; box-shadow: 0 0 15px gold; }
-        .closed-slot { border: 3px solid red !important; }
-        .flying-card { position: absolute; width: 70px; height: 100px; background: white; border-radius: 8px; z-index: 100; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 22px; border: 2px solid #333; pointer-events: none; }
-        .modal-overlay { position: absolute; inset: 0; background: #0a3d0a; display: none; z-index: 2000; border-radius: 32px; border: 8px solid #333; }
-        .modal { padding: 30px 20px; color: white; text-align: center; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; overflow-y: auto; }
-        .signature { position: absolute; bottom: 15px; color: #fff; font-size: 12px; font-weight: 900; }
+        .bust-x { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,0,0,0.8); display: none; justify-content: center; align-items: center; font-size: 40px; font-weight: bold; border-radius: 8px; color: white; z-index: 2; }
+        .perfect-21 { border: 3px solid gold !important; background: rgba(255, 215, 0, 0.2); }
+        .closed-slot { border: 3px solid red !important; opacity: 1 !important; }
+        .flying-card { position: absolute; width: 60px; height: 90px; background: white; border-radius: 8px; z-index: 150; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 20px; border: 2px solid #333; transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1); pointer-events: none; }
+        .star-fx { position: absolute; color: gold; font-size: 30px; animation: starUp 1s ease-out forwards; z-index: 200; pointer-events: none; }
+        @keyframes starUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-50px) scale(1.5); } }
+        .signature { margin-top: auto; margin-bottom: 15px; color: #fff; font-size: 16px; font-weight: 900; text-shadow: 2px 2px 4px #000; }
+        .rank-item { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 2px; }
     </style>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 </head>
-<body id="mainBody">
+<body onclick="bodyKapat(event)">
+
+<div id="loginOverlay">
+    <h1 style="color:gold; margin:0; font-size:24px;">BlackJACK 4x4</h1>
+    <p style="font-size:12px; color:white; margin-top:5px;">KARİYER SİSTEMİNE HOŞ GELDİNİZ</p>
+    <input type="text" id="playerName" placeholder="İSMİNİZİ YAZIN (A-Z)" maxlength="12">
+    <p id="statusMsg" style="font-size:10px; color:red; height:15px;"></p>
+    <button onclick="kayitVeGiris()">OYUNA BAŞLA</button>
+</div>
 
 <div class="phone" id="gameArea">
     <div class="header-area">
-        <div class="timer-container">
-            <div class="timer-circle"></div>
-            <div class="timer-glow" id="timerGlow"></div>
-            <div class="timer-text" id="timerDisplay">30</div>
+        <div class="deck-box" id="deck" onclick="kartCek()">?</div>
+        <button class="restart-btn" id="restartBtn" onclick="sifirlaHemen()">TEKRAR<br>DAĞIT</button>
+        <div class="info-btn" onclick="modalAc(event)">i</div>
+        <p id="deckLabel" style="color: white; font-size: 10px; margin-top: 5px;">TIKLA ÇEK</p>
+    </div>
+    <div class="score-area">
+        <div class="total-score" id="toplam">PUAN: 0</div>
+        <div class="user-career-tag" id="careerTag">OYUNCU: BEKLENİYOR</div>
+    </div>
+    <div class="center-action-area">
+        <div class="static-pattern" id="pattern"></div>
+        <div class="leaderboard" id="scoreBoard">
+            <h3 style="margin:2px; font-size:12px; text-align:center;">DÜNYA KARİYER KLASMANI</h3>
+            <div id="globalScores"></div>
         </div>
-        <div class="deck-box" id="deck" onclick="baslat()">?</div>
-        <div class="restart-btn" id="restartBtn" onclick="location.reload()">YENİDEN<br>BAŞLA</div>
-        <div class="info-btn" onclick="modalAc()">i</div>
-    </div>
-    <div class="score-area"><div class="total-score" id="toplam">PUAN: 0</div></div>
-    <div class="game-title">BlackJACK Pot</div>
-    <div class="slots" id="slotsContainer">
-        <div class="slot" id="maca" onclick="slotKapat('maca')"><span style="font-size:11px; color:gold;">x4</span><span style="font-size:30px">♠</span><span class="slot-score">0</span><div class="bust-x">KAPALI</div></div>
-        <div class="slot" id="kupa" onclick="slotKapat('kupa')"><span style="font-size:11px; color:gold;">x3</span><span style="color:#e74c3c; font-size:30px">♥</span><span class="slot-score">0</span><div class="bust-x">KAPALI</div></div>
-        <div class="slot" id="sinek" onclick="slotKapat('sinek')"><span style="font-size:11px; color:gold;">x2</span><span style="font-size:30px">♣</span><span class="slot-score">0</span><div class="bust-x">KAPALI</div></div>
-        <div class="slot" id="karo" onclick="slotKapat('karo')"><span style="font-size:11px; color:gold;">x1</span><span style="color:#e74c3c; font-size:30px">♦</span><span class="slot-score">0</span><div class="bust-x">KAPALI</div></div>
-    </div>
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal">
-            <h2 style="color:gold;">KUTSAL İNFO</h2>
-            <div style="font-size:12px; text-align:left; line-height:1.5; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px;">
-                <b style="color:gold;">KADEMELİ BONUS:</b><br>
-                Her 50 puan diliminde bonus katlanır (+10, +20, +40...).<br><br>
-                • <b>Hokus Pokus:</b> Kartlar geçtiği sütunun simgesine bürünür.<br>
-                • <b>20 Puan:</b> +20 Puan ve Altın Çerçeve.<br>
-                • <b>21 Puan:</b> +50 Puan ve KİLİT.<br>
-                • <b>Zaman:</b> 30 Saniye. Metalik kalp atış sesine dikkat!<br>
-                • <b>Kontrol:</b> Kartın sağına/soluna tıklayarak yön ver.
+        <div class="modal-overlay" id="modalOverlay" onclick="modalKapat()">
+            <div class="modal" id="infoModal" onclick="event.stopPropagation()">
+                <h3 style="color:gold; margin-top:0; border-bottom:1px solid gold; padding-bottom:5px;">KARİYER SİSTEMİ</h3>
+                <div style="font-size:12px; line-height:1.4;">
+                    Kazandığınız her puan kariyerinize eklenir.<br>
+                    <br>
+                    21 Bonus: +50 | 20 Bonus: +20<br>
+                    <br>
+                    <p style="color:gold; margin-bottom:2px;">ÖNEMLİ:</p>
+                    <p style="color:white; padding:0 5px;">İsimler size özeldir ve dünyada tekdir. Puanlarınız her oyunda üst üste birikir.</p>
+                </div>
+                <button onclick="modalKapat()" style="background:gold; border:none; padding:8px 20px; border-radius:10px; font-weight:bold; cursor:pointer; margin-top:10px;">ANLADIM</button>
             </div>
-            <button onclick="modalKapat()" style="margin-top:20px; padding:12px 30px; background:gold; border:none; border-radius:12px; font-weight:bold;">OYUNA DÖN</button>
         </div>
+    </div>
+    <div class="game-title-frame">BlackJACK 4x4</div>
+    <div class="slots">
+        <div class="slot" id="maca" onclick="slotKapat('maca')"><span class="mult-tag">x4</span><span class="suit-icon">♠</span><span class="slot-score">0</span><div class="bust-x">X</div></div>
+        <div class="slot" id="kupa" onclick="slotKapat('kupa')"><span class="mult-tag">x3</span><span class="suit-icon" style="color:#e74c3c;">♥</span><span class="slot-score">0</span><div class="bust-x">X</div></div>
+        <div class="slot" id="sinek" onclick="slotKapat('sinek')"><span class="mult-tag">x2</span><span class="suit-icon">♣</span><span class="slot-score">0</span><div class="bust-x">X</div></div>
+        <div class="slot" id="karo" onclick="slotKapat('karo')"><span class="mult-tag">x1</span><span class="suit-icon" style="color:#e74c3c;">♦</span><span class="slot-score">0</span><div class="bust-x">X</div></div>
     </div>
     <div class="signature">A.C.Dikili & Gemini.AI</div>
 </div>
 
 <script>
     const firebaseConfig = {
-        apiKey: "AIzaSyBbtvGBl8m1x8thDlsUUutvujedIBCC4PA", 
+        apiKey: "AIzaSyBbtvGBl8m1x8thDlsUUutvujedIBCC4PA",
         authDomain: "blackjack-4x4.firebaseapp.com",
         databaseURL: "https://blackjack-4x4-default-rtdb.europe-west1.firebasedatabase.app",
         projectId: "blackjack-4x4",
@@ -84,143 +108,138 @@
         appId: "1:805180924640:web:c7da5f8c037b7ff5c26685"
     };
     firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-
-    const mults = { maca: 4, kupa: 3, sinek: 2, karo: 1 };
-    let tPuan = 0, sPuan = {maca:0, kupa:0, sinek:0, karo:0}, aktif = {maca:true, kupa:true, sinek:true, karo:true};
-    let isAnim = false, gameOver = false, saniye = 30, timerStarted = false, currentPosX = 0;
-    const baseSpeed = 2.8;
+    const db = firebase.database();
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playMetallicTick(sec) {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(sec <= 10 ? 350 : 150, audioCtx.currentTime);
-        gain.gain.setValueAtTime(sec <= 10 ? 0.4 : 0.2, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-    }
+    const mults = { maca: 4, kupa: 3, sinek: 2, karo: 1 };
+    let tPuan = 0, sPuan = {maca:0,kupa:0,sinek:0,karo:0}, aktif = {maca:true,kupa:true,sinek:true,karo:true}, isAnim = false;
+    let currentUser = null, userTotalCareer = 0, worldScores = [];
 
-    function baslat() {
-        if(!timerStarted) {
-            if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
-            startTimer();
-            document.getElementById('timerGlow').classList.add('is-running');
+    // KARİYER SİSTEMİ GİRİŞ ALGORİTMASI
+    function kayitVeGiris() {
+        let rawName = document.getElementById('playerName').value.trim().toUpperCase();
+        let cleanName = rawName.replace(/[^A-Z]/g, ''); // Sadece İngilizce büyük harfler
+
+        if (cleanName.length < 2) {
+            document.getElementById('statusMsg').innerText = "GEÇERSİZ İSİM!";
+            return;
         }
-        kartCek();
-    }
 
-    function startTimer() {
-        timerStarted = true;
-        const interval = setInterval(() => {
-            if(gameOver) { clearInterval(interval); return; }
-            saniye--;
-            document.getElementById('timerDisplay').innerText = saniye;
-            playMetallicTick(saniye);
-            if(saniye <= 0) { clearInterval(interval); bitti("ZAMAN DOLDU!"); }
-        }, 1000);
-    }
+        db.ref('career_data').once('value', (snap) => {
+            let data = snap.val() || {};
+            let conflict = false;
+            let existingKey = null;
 
-    function modalAc() { document.getElementById('modalOverlay').style.display = 'block'; }
-    function modalKapat() { document.getElementById('modalOverlay').style.display = 'none'; }
+            // KESKİN İSİM FİLTRESİ (Sizin Kuralınız)
+            Object.keys(data).forEach(key => {
+                if (key === cleanName || key.includes(cleanName) || cleanName.includes(key)) {
+                    conflict = true;
+                    existingKey = key;
+                }
+            });
 
-    function kartCek() {
-        if(isAnim || gameOver) return;
-        isAnim = true;
-        const val = Math.floor(Math.random()*13)+1;
-        const slots = ['maca', 'kupa', 'sinek', 'karo'];
-        createFallingCard(val, slots[Math.floor(Math.random() * 4)]);
-    }
-
-    function createFallingCard(val, startSuit) {
-        const ga = document.getElementById('gameArea');
-        const ar = ga.getBoundingClientRect();
-        const slots = ['maca', 'kupa', 'sinek', 'karo'];
-        const card = document.createElement('div');
-        card.className = 'flying-card';
-        currentPosX = (slots.indexOf(startSuit) * (ar.width/4)) + (ar.width/8) - 35;
-        card.style.left = currentPosX + 'px'; card.style.top = '100px';
-        ga.appendChild(card);
-
-        const fallInterval = setInterval(() => {
-            if(gameOver) { clearInterval(fallInterval); card.remove(); return; }
-            let posY = parseFloat(card.style.top) + (baseSpeed * (1 + Math.min(tPuan / 1200, 0.3)));
-            card.style.top = posY + 'px';
-            
-            // HOKUS POKUS MEKANİZMASI
-            let index = Math.max(0, Math.min(3, Math.floor((currentPosX + 35) / (ar.width/4))));
-            let curSuit = slots[index];
-            const sym = {maca:'♠',kupa:'♥',sinek:'♣',karo:'♦'};
-            card.innerHTML = (val===1?'A':val===11?'J':val===12?'Q':val===13?'K':val) + sym[curSuit];
-            card.style.color = (curSuit === 'kupa' || curSuit === 'karo') ? 'red' : 'black';
-
-            if(posY > document.getElementById('slotsContainer').offsetTop - 110) {
-                clearInterval(fallInterval);
-                finishCard(card, val, curSuit);
+            if (conflict) {
+                if (existingKey === cleanName) {
+                    // Mevcut kullanıcı devam ediyor
+                    currentUser = existingKey;
+                    userTotalCareer = data[existingKey];
+                    oyunuBaslat();
+                } else {
+                    // İsim çok benzer (ALI varken MALIK olmaz)
+                    document.getElementById('statusMsg').innerText = "BU İSİM KULLANIMDA VEYA ÇOK BENZER!";
+                }
+            } else {
+                // Tamamen yeni kullanıcı
+                currentUser = cleanName;
+                userTotalCareer = 0;
+                db.ref('career_data/' + currentUser).set(0);
+                oyunuBaslat();
             }
-        }, 16);
-
-        document.getElementById('mainBody').onclick = (e) => {
-            if(gameOver || e.target.classList.contains('slot')) return;
-            const clickX = e.clientX - ar.left;
-            if (clickX < currentPosX + 35) currentPosX -= 45; else currentPosX += 45;
-            currentPosX = Math.max(10, Math.min(ar.width - 80, currentPosX));
-            card.style.left = currentPosX + 'px';
-        };
+        });
     }
 
-    function finishCard(card, val, s) {
-        const rect = document.getElementById(s).getBoundingClientRect();
-        const ar = document.getElementById('gameArea').getBoundingClientRect();
-        card.style.transition = '0.15s';
-        card.style.left = (rect.left - ar.left + 5) + 'px';
-        card.style.top = (rect.top - ar.top + 5) + 'px';
-        card.style.transform = 'scale(0.8)';
-        setTimeout(() => { card.remove(); if(!aktif[s]) bitti("YASAK BÖLGE!"); else guncelle(s, val); }, 150);
+    function oyunuBaslat() {
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('careerTag').innerText = currentUser + " | KARİYER: " + userTotalCareer;
+        
+        // Klasmanı Dinle
+        db.ref('career_data').orderByValue().limitToLast(5).on('value', (snap) => {
+            worldScores = [];
+            snap.forEach(c => { worldScores.unshift({ isim: c.key, puan: c.val() }); });
+        });
     }
+
+    function sesCal(t) {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination);
+        if(t==='v'){ o.frequency.setValueAtTime(200, audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime+0.5); g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime+0.5); o.start(); o.stop(audioCtx.currentTime+0.5); }
+        else if(t==='21') { [0, 0.2, 0.4].forEach(d => { const o2 = audioCtx.createOscillator(), g2 = audioCtx.createGain(); o2.connect(g2); g2.connect(audioCtx.destination); o2.frequency.setValueAtTime(600, audioCtx.currentTime + d); g2.gain.setValueAtTime(0.1, audioCtx.currentTime + d); g2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime+d+0.15); o2.start(audioCtx.currentTime+d); o2.stop(audioCtx.currentTime+d+0.15); }); }
+        else { o.type='triangle'; g.gain.linearRampToValueAtTime(0, audioCtx.currentTime+0.1); o.start(); o.stop(audioCtx.currentTime+0.1); }
+    }
+
+    function kartCek() { if(isAnim || !currentUser) return; const m = Object.keys(aktif).filter(s => aktif[s]); if(!m.length) return; isAnim=true; sesCal('v'); const s = m[Math.floor(Math.random()*m.length)], d = Math.floor(Math.random()*13)+1; anim(s, d); }
+    
+    function anim(s, d) {
+        const ga = document.getElementById('gameArea'), card = document.createElement('div'), dr = document.getElementById('deck').getBoundingClientRect(), ar = ga.getBoundingClientRect();
+        card.className = 'flying-card'; card.innerHTML = fmt(d, s); if(s==='kupa'||s==='karo') card.style.color='red';
+        card.style.left = (dr.left - ar.left) + 'px'; card.style.top = (dr.top - ar.top) + 'px'; ga.appendChild(card);
+        setTimeout(() => { const tr = document.getElementById(s).getBoundingClientRect(); card.style.left = (tr.left - ar.left + 5) + 'px'; card.style.top = (tr.top - ar.top + 5) + 'px'; card.style.transform = 'scale(0.8)';
+            setTimeout(() => { card.remove(); sesCal('t'); guncelle(s, d); isAnim=false; }, 600);
+        }, 50);
+    }
+
+    function starPop(s) {
+        const ga = document.getElementById('gameArea'), sl = document.getElementById(s).getBoundingClientRect(), ar = ga.getBoundingClientRect();
+        const star = document.createElement('div'); star.className = 'star-fx'; star.innerText = '⭐';
+        star.style.left = (sl.left - ar.left + 20) + 'px'; star.style.top = (sl.top - ar.top) + 'px';
+        ga.appendChild(star); setTimeout(() => star.remove(), 1000);
+    }
+
+    function fmt(d, s) { const sym = {maca:'♠',kupa:'♥',sinek:'♣',karo:'♦'}; let n = d===1?'A':d===11?'J':d===12?'Q':d===13?'K':d; return n + sym[s]; }
 
     function guncelle(s, d) {
-        let e = d > 10 ? 10 : d;
-        if(d === 1) e = sPuan[s] + 11 <= 21 ? 11 : 1;
-        sPuan[s] += e; tPuan += (e * mults[s]);
-        const el = document.getElementById(s);
-        el.querySelector('.slot-score').innerText = sPuan[s];
-        if(sPuan[s] === 21) { 
-            aktif[s] = false; tPuan += (50 * mults[s]); el.classList.add('perfect-21', 'closed-slot'); 
-        } else if(sPuan[s] === 20) {
-            tPuan += (20 * mults[s]); el.classList.add('perfect-21');
-        } else if(sPuan[s] > 21) { 
-            tPuan -= (sPuan[s] * mults[s]); sPuan[s] = 0; aktif[s] = false; 
-            el.classList.add('closed-slot'); el.querySelector('.bust-x').style.display = 'flex'; 
-        }
-        document.getElementById('toplam').innerText = 'PUAN: ' + tPuan; isAnim = false;
-        if(Object.values(aktif).every(v => !v)) bitti("OYUN BİTTİ");
+        let e = d>10?10:d; if(d===1) e = sPuan[s]+11<=21?11:1;
+        sPuan[s]+=e; tPuan+=(e*mults[s]);
+        const el = document.getElementById(s); el.querySelector('.slot-score').innerText = sPuan[s];
+        if(sPuan[s] === 21) { aktif[s]=false; tPuan+=(50*mults[s]); sesCal('21'); starPop(s); el.classList.add('perfect-21', 'closed-slot'); }
+        else if(sPuan[s] === 20) { tPuan+=(20*mults[s]); el.classList.add('perfect-21'); }
+        else if(sPuan[s] > 21) { tPuan-=(sPuan[s]*mults[s]); sPuan[s]=0; aktif[s]=false; el.classList.add('closed-slot'); el.querySelector('.bust-x').style.display='flex'; el.querySelector('.slot-score').innerText='0'; }
+        document.getElementById('toplam').innerText = 'PUAN: ' + tPuan;
+        if(Object.values(aktif).every(v => !v)) bitti();
     }
 
-    function slotKapat(s) { if(aktif[s] && !isAnim && !gameOver) { aktif[s] = false; document.getElementById(s).classList.add('closed-slot'); if(Object.values(aktif).every(v => !v)) bitti("KAPATILDI"); } }
+    function slotKapat(s) { if(aktif[s] && !isAnim) { aktif[s]=false; document.getElementById(s).classList.add('closed-slot'); if(Object.values(aktif).every(v => !v)) bitti(); } }
+    function modalAc(e) { e.stopPropagation(); document.getElementById('modalOverlay').style.display = 'block'; }
+    function modalKapat() { document.getElementById('modalOverlay').style.display = 'none'; }
+    function bodyKapat(e) { if(document.getElementById('modalOverlay').style.display === 'block') modalKapat(); }
 
-    function bitti(msg) {
-        gameOver = true; document.getElementById('deck').style.display = 'none';
-        document.getElementById('restartBtn').style.display = 'flex';
-        document.getElementById('timerGlow').classList.remove('is-running');
-        let bonus = 0; if(tPuan >= 50) bonus = 10 * Math.pow(2, Math.min(Math.floor(tPuan / 50) - 1, 10));
-        tPuan += bonus;
-        database.ref('world_scores').once('value', snapshot => {
-            let rekorlar = snapshot.val() || [];
-            if(rekorlar.length < 5 || tPuan > rekorlar[rekorlar.length-1].s) {
-                let isim = prompt("DÜNYA REKORU! İsim yazın:", "Misafir");
-                rekorlar.push({n: isim || "Misafir", s: tPuan});
-                rekorlar.sort((a,b) => b.s - a.s);
-                rekorlar = rekorlar.slice(0,5);
-                database.ref('world_scores').set(rekorlar);
-            }
-            const dunyaHtml = rekorlar.map((r, i) => `${i+1}. ${r.n}: ${r.s}`).join('<br>');
-            const box = document.getElementById('toplam');
-            box.innerHTML = `<small>${msg}</small><br>SKOR: ${tPuan}<br><div style='font-size:11px; color:gold; margin-top:5px;'>DÜNYA TOP 5:<br>${dunyaHtml}</div>`;
-            box.classList.add('score-final');
-        });
+    function bitti() { 
+        let bonus = 0; if(tPuan >= 50) { let dilim = Math.min(Math.floor(tPuan / 50), 10); bonus = 10 * Math.pow(2, dilim - 1); }
+        tPuan += bonus; 
+        document.getElementById('toplam').innerText = 'FİNAL: ' + tPuan;
+
+        // KARİYERİ GÜNCELLE VE BULUTA YAZ
+        userTotalCareer += tPuan;
+        db.ref('career_data/' + currentUser).set(userTotalCareer);
+        document.getElementById('careerTag').innerText = currentUser + " | KARİYER: " + userTotalCareer;
+
+        tabloGoster(); 
+        document.getElementById('deck').style.visibility='hidden'; document.getElementById('restartBtn').style.display='block';
+    }
+    
+    function tabloGoster() { 
+        const gList = document.getElementById('globalScores');
+        gList.innerHTML = worldScores.map((item, i) => `<div class="rank-item"><span>${i+1}. ${item.isim}</span><span>${item.puan}</span></div>`).join('');
+        document.getElementById('scoreBoard').style.display = 'block'; 
+        document.getElementById('pattern').style.display = 'none';
+    }
+
+    function sifirlaHemen() { 
+        tPuan=0; sPuan={maca:0,kupa:0,sinek:0,karo:0}; aktif={maca:true,kupa:true,sinek:true,karo:true}; 
+        document.getElementById('toplam').innerText='PUAN: 0'; document.getElementById('restartBtn').style.display='none'; 
+        document.getElementById('deck').style.visibility='visible'; document.getElementById('scoreBoard').style.display='none';
+        document.getElementById('pattern').style.display='flex';
+        document.querySelectorAll('.slot').forEach(el => { el.classList.remove('perfect-21', 'closed-slot'); el.querySelector('.bust-x').style.display='none'; el.querySelector('.slot-score').innerText='0'; });
     }
 </script>
 </body>

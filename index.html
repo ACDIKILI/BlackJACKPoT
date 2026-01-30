@@ -83,13 +83,14 @@
                 • <b>HOKUS POKUS:</b> Kartlar havada simge değiştirir.<br>
                 • <b>30 Saniye:</b> Zaman dolmadan en iyi yerleşimi yap!
             </div>
-            <button onclick="modalKapat()" style="margin-top:15px; padding:10px 20px; background:gold; border:none; border-radius:10px; font-weight:bold;">OYUNA DÖN</button>
+            <button onclick="modalKapat()" style="margin-top:15px; padding:10px 20px; background:gold; border:none; border-radius:12px; font-weight:bold;">OYUNA DÖN</button>
         </div>
     </div>
     <div class="signature">A.C.Dikili & Gemini.AI</div>
 </div>
 
 <script>
+    // FIREBASE BAĞLANTISI
     const firebaseConfig = {
         apiKey: "AIzaSyBbtvGBl8m1x8thDlsUUutvujedIBCC4PA", 
         databaseURL: "https://blackjack-4x4-default-rtdb.europe-west1.firebasedatabase.app",
@@ -99,11 +100,13 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let currentPlayer = "", currentCareerScore = 0, isGameActive = false;
+    // DEĞİŞKENLER
+    let currentPlayer = "", currentCareerScore = 0;
     const mults = { maca: 4, kupa: 3, sinek: 2, karo: 1 };
     let tPuan = 0, sPuan = {maca:0, kupa:0, sinek:0, karo:0}, aktif = {maca:true, kupa:true, sinek:true, karo:true};
     let isAnim = false, gameOver = false, saniye = 30, timerStarted = false, currentPosX = 0;
 
+    // GİRİŞ KONTROLÜ
     function checkPlayer() {
         let input = document.getElementById('playerName').value.trim().toUpperCase();
         const errorEl = document.getElementById('loginError');
@@ -129,8 +132,10 @@
         });
     }
 
+    // BAŞLATMA VE RESET MEKANİZMASI
     function baslat() {
         if(gameOver) { resetBoard(); return; }
+        if(!currentPlayer) { alert("Lütfen önce giriş yapın!"); return; }
         if(!timerStarted) { startTimer(); document.getElementById('timerGlow').classList.add('is-running'); }
         kartCek();
     }
@@ -151,6 +156,7 @@
         document.getElementById('deck').style.display = 'flex';
     }
 
+    // SES SİSTEMİ
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playMetallicTick(sec) {
         const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
@@ -174,6 +180,7 @@
     function modalAc() { document.getElementById('modalOverlay').style.display = 'block'; }
     function modalKapat() { document.getElementById('modalOverlay').style.display = 'none'; }
 
+    // OYUN MEKANİĞİ
     function kartCek() {
         if(isAnim || gameOver) return;
         isAnim = true;
@@ -204,7 +211,7 @@
         }, 16);
 
         document.getElementById('mainBody').onclick = (e) => {
-            if(gameOver || e.target.classList.contains('slot')) return;
+            if(gameOver || e.target.classList.contains('slot') || !currentPlayer) return;
             const clickX = e.clientX - ar.left;
             if (clickX < currentPosX + 35) currentPosX -= 45; else currentPosX += 45;
             currentPosX = Math.max(10, Math.min(ar.width - 80, currentPosX));

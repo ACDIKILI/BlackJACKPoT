@@ -63,7 +63,6 @@
     </div>
     
     <div class="score-area"><div class="total-score" id="toplam">PUAN: 0</div></div>
-    <div class="game-title" style="position:absolute; bottom:205px; color:gold; font-size:22px; font-weight:bold;">BlackJACK Pot</div>
     
     <div class="slots" id="slotsContainer">
         <div class="slot" id="maca" onclick="slotKapat('maca')"><span style="font-size:11px; color:gold;">x4</span><span style="font-size:30px">♠</span><span class="slot-score">0</span><div class="bust-x">KAPALI</div></div>
@@ -72,17 +71,6 @@
         <div class="slot" id="karo" onclick="slotKapat('karo')"><span style="font-size:11px; color:gold;">x1</span><span style="color:#e74c3c; font-size:30px">♦</span><span class="slot-score">0</span><div class="bust-x">KAPALI</div></div>
     </div>
 
-    <div class="modal-overlay">
-        <div class="modal">
-            <h2 style="color:gold;">KUTSAL İNFO</h2>
-            <div style="font-size:12px; text-align:left; line-height:1.5; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px;">
-                • <b>KARİYER:</b> Her oyun puanın toplamına eklenir.<br>
-                • <b>KONTROL:</b> Kartın sağına ve soluna tıklayarak hareket ettirebilirsiniz.<br>
-                • <b>30 Saniye:</b> Zaman dolmadan en iyi yerleşimi yap!
-            </div>
-            <button onclick="modalKapat()" style="margin-top:20px; padding:12px 30px; background:gold; border:none; border-radius:12px; font-weight:bold; cursor:pointer;">OYUNA DÖN</button>
-        </div>
-    </div>
     <div class="signature">A.C.Dikili & Gemini.AI</div>
 </div>
 
@@ -101,10 +89,18 @@
     let tPuan = 0, sPuan = {maca:0, kupa:0, sinek:0, karo:0}, aktif = {maca:true, kupa:true, sinek:true, karo:true};
     let isAnim = false, gameOver = false, saniye = 30, timerStarted = false, currentPosX = 0;
 
+    // Beni Hatırla Sistemi
+    window.onload = function() {
+        const kayitli = localStorage.getItem('ACD_PoT_LastUser');
+        if(kayitli) {
+            document.getElementById('pNameInput').value = kayitli;
+            checkUser();
+        }
+    };
+
     function checkUser() {
         const input = document.getElementById('pNameInput').value.trim().toUpperCase();
-        const err = document.getElementById('lError');
-        if(!input) { err.innerText = "İSİM YAZINIZ!"; return; }
+        if(!input) { document.getElementById('lError').innerText = "İSİM YAZINIZ!"; return; }
 
         db.ref('pot_players').once('value').then(snap => {
             const players = snap.val() || {};
@@ -113,6 +109,7 @@
                 if(players[id].name === input) { exists = true; curTotal = players[id].score || 0; break; }
             }
             curUser = input;
+            localStorage.setItem('ACD_PoT_LastUser', curUser);
             if(!exists) db.ref('pot_players/' + input).set({name: input, score: 0});
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('uPanel').style.display = 'block';
@@ -133,7 +130,17 @@
     function finishCard(card, val, s) { const rect = document.getElementById(s).getBoundingClientRect(); const ar = document.getElementById('gameArea').getBoundingClientRect(); card.style.transition = '0.15s'; card.style.left = (rect.left - ar.left + 5) + 'px'; card.style.top = (rect.top - ar.top + 5) + 'px'; card.style.transform = 'scale(0.8)'; setTimeout(() => { if(card.parentNode) card.remove(); if(!aktif[s]) bitti("YASAK BÖLGE!"); else guncelle(s, val); }, 150); }
     function guncelle(s, d) { let e = d > 10 ? 10 : d; if(d === 1) e = sPuan[s] + 11 <= 21 ? 11 : 1; sPuan[s] += e; tPuan += (e * mults[s]); document.getElementById(s).querySelector('.slot-score').innerText = sPuan[s]; if(sPuan[s] === 21) { aktif[s] = false; tPuan += (50 * mults[s]); document.getElementById(s).classList.add('perfect-21'); } else if(sPuan[s] === 20) { tPuan += (20 * mults[s]); document.getElementById(s).classList.add('perfect-21'); } else if(sPuan[s] > 21) { tPuan -= (sPuan[s] * mults[s]); sPuan[s] = 0; aktif[s] = false; document.getElementById(s).querySelector('.bust-x').style.display = 'flex'; } document.getElementById('toplam').innerText = 'PUAN: ' + tPuan; isAnim = false; if(Object.values(aktif).every(v => !v)) bitti("OYUN BİTTİ"); }
     function slotKapat(s) { if(aktif[s] && !isAnim && !gameOver) { aktif[s] = false; document.getElementById(s).querySelector('.bust-x').style.display = 'flex'; if(Object.values(aktif).every(v => !v)) bitti("KAPATILDI"); } }
-    function reloadGame() { location.reload(); }
+    
+    function reloadGame() { 
+        tPuan = 0; saniye = 30; gameOver = false; timerStarted = false; isAnim = false;
+        sPuan = {maca:0, kupa:0, sinek:0, karo:0}; aktif = {maca:true, kupa:true, sinek:true, karo:true};
+        document.querySelectorAll('.slot').forEach(el => { el.classList.remove('perfect-21'); el.querySelector('.slot-score').innerText = '0'; el.querySelector('.bust-x').style.display = 'none'; });
+        document.getElementById('toplam').innerText = 'PUAN: 0'; document.getElementById('timerDisplay').innerText = '30';
+        document.getElementById('timerGlow').classList.remove('is-running');
+        const f = document.querySelector('.score-final'); if(f) f.remove();
+        document.getElementById('deck').style.display = 'flex';
+    }
+
     function bitti(msg) { if(gameOver) return; gameOver = true; document.getElementById('deck').style.display = 'none'; let b = 0; if(tPuan >= 50) b = 10 * Math.pow(2, Math.min(Math.floor(tPuan / 50) - 1, 10)); tPuan += b; curTotal += tPuan; db.ref('pot_players/' + curUser).update({score: curTotal}); document.getElementById('pScoreDisp').innerText = curTotal; db.ref('pot_players').orderByChild('score').limitToLast(5).once('value', snap => { let list = []; snap.forEach(c => { list.push(c.val()); }); list.reverse(); const box = document.createElement('div'); box.className = 'score-final'; let leaderboardHtml = list.map((r, i) => `<div class="leaderboard-row"><span>${i+1}. ${r.name}</span><span class="leaderboard-score">${r.score}</span></div>`).join(''); box.innerHTML = `<div class="leaderboard-title">DÜNYA KLASMANI (PoT)</div><div style="margin-bottom:20px;">${leaderboardHtml}</div><div style="font-size:12px; color:white; margin-bottom:10px;">${msg}<br>BU OYUN: ${tPuan}</div><button onclick="reloadGame()" style="padding:10px 20px; border:none; background:#f1c40f; color:#002200; font-weight:bold; border-radius:10px; cursor:pointer; width:100%;">YENİ OYUN</button>`; document.getElementById('gameArea').appendChild(box); }); }
     function modalAc() { document.querySelector('.modal-overlay').style.display = 'block'; }
     function modalKapat() { document.querySelector('.modal-overlay').style.display = 'none'; }

@@ -9,46 +9,29 @@
     <style>
         body { background-color: #1a1a1a; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: sans-serif; overflow: hidden; touch-action: none; }
         .phone { width: 100%; max-width: 360px; height: 100vh; max-height: 640px; background: radial-gradient(circle, #1a5d1a 0%, #0a3d0a 100%); border: 8px solid #333; border-radius: 40px; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.8); display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
-        
-        /* GİRİŞ EKRANI */
         .login-screen { position: absolute; inset: 0; background: rgba(0,0,0,0.98); z-index: 5000; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 32px; padding: 20px; text-align: center; }
         .login-input { padding: 15px; border-radius: 10px; border: 2px solid gold; margin: 15px 0; width: 80%; font-size: 20px; text-transform: uppercase; background: #222; color: white; text-align: center; }
         .login-btn { padding: 15px 40px; background: gold; border: none; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; }
-
-        /* KULLANICI PANELİ */
         .user-panel { position: absolute; top: 15px; right: 25px; color: white; font-size: 11px; text-align: right; z-index: 100; }
-        
         .header-area { height: 25%; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
         .deck-box { width: 80px; height: 110px; background: linear-gradient(135deg, #c0392b, #8e44ad); border: 3px solid white; border-radius: 8px; display: flex; justify-content: center; align-items: center; color: white; font-size: 40px; cursor: pointer; z-index: 10; }
-        
-        /* TIMER VE INFO */
         .timer-container { position: absolute; left: 35px; top: 38%; transform: translateY(-50%); width: 70px; height: 70px; display: flex; justify-content: center; align-items: center; }
         .timer-text { color: #ff4d4d; font-size: 24px; font-weight: bold; font-family: monospace; z-index: 5; }
         .timer-glow { position: absolute; inset: -4px; border: 4px solid transparent; border-top-color: #ff4d4d; border-radius: 50%; }
         .info-btn { width: 35px; height: 35px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 2px solid white; color: white; display: flex; justify-content: center; align-items: center; font-weight: bold; cursor: pointer; position: absolute; right: 35px; top: 48%; transform: translateY(-50%); font-style: italic; z-index: 1000; }
-        
         .is-running { animation: rotateGlow 2s linear infinite; }
         @keyframes rotateGlow { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
         .total-score { color: #f1c40f; font-size: 24px; font-weight: bold; text-shadow: 2px 2px 4px #000; background: rgba(0,0,0,0.4); padding: 5px 20px; border-radius: 15px; z-index: 60; text-align: center; }
         .slots { width: 100%; display: flex; justify-content: space-around; padding: 0 5px; position: absolute; bottom: 80px; box-sizing: border-box; }
         .slot { width: 22%; height: 115px; border: 2px dashed rgba(255,255,255,0.3); border-radius: 10px; display: flex; flex-direction: column; align-items: center; color: white; position: relative; padding-top: 5px; cursor: pointer; }
         .slot-score { font-size: 24px; font-weight: bold; pointer-events: none; }
         .bust-x { position: absolute; inset: 0; background: rgba(210, 0, 0, 0.95); display: none; justify-content: center; align-items: center; font-size: 14px; font-weight: bold; border-radius: 8px; color: white; z-index: 5; pointer-events: none; }
         .perfect-21 { border: 3px solid gold !important; background: rgba(255, 215, 0, 0.3) !important; }
-        
-        /* GÖRSELDEKİ SKOR TABLOSU TASARIMI */
-        .score-final { 
-            position: absolute; top: 45% !important; left: 50% !important; transform: translate(-50%, -50%); 
-            z-index: 1500; width: 320px; padding: 20px; border-radius: 30px; 
-            border: 3px solid #f1c40f; background: #002200; color: #f1c40f; 
-            box-shadow: 0 0 30px rgba(0,0,0,0.9); text-align: center; 
-        }
+        .score-final { position: absolute; top: 45% !important; left: 50% !important; transform: translate(-50%, -50%); z-index: 1500; width: 320px; padding: 20px; border-radius: 30px; border: 3px solid #f1c40f; background: #002200; color: #f1c40f; box-shadow: 0 0 30px rgba(0,0,0,0.9); text-align: center; }
         .leaderboard-title { color: #f1c40f; font-size: 18px; font-weight: bold; margin-bottom: 15px; text-transform: uppercase; }
         .leaderboard-row { display: flex; justify-content: space-between; font-size: 16px; margin: 8px 0; font-family: sans-serif; }
         .leaderboard-name { flex-grow: 1; text-align: left; padding-left: 10px; }
         .leaderboard-score { text-align: right; }
-
         .flying-card { position: absolute; width: 70px; height: 100px; background: white; border-radius: 8px; z-index: 100; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 22px; border: 2px solid #333; pointer-events: none; }
         .modal-overlay { position: absolute; inset: 0; background: #0a3d0a; display: none; z-index: 6000; border-radius: 32px; border: 8px solid #333; }
         .modal { padding: 30px 20px; color: white; text-align: center; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; overflow-y: auto; }
@@ -62,7 +45,7 @@
         <h1 style="color:gold;">BlackJACK Pot</h1>
         <input type="text" id="pNameInput" class="login-input" placeholder="İSİM YAZINIZ">
         <p id="lError" style="color:#ff4d4d; font-size:12px; height:20px;"></p>
-        <button class="login-btn" onclick="checkUser()">GİRİŞ YAP</button>
+        <button class="login-btn" id="girisBtn" onclick="checkUser()">GİRİŞ YAP</button>
     </div>
 
     <div class="user-panel" id="uPanel" style="display:none;">
@@ -123,28 +106,41 @@
     function checkUser() {
         const input = document.getElementById('pNameInput').value.trim().toUpperCase();
         const err = document.getElementById('lError');
+        const btn = document.getElementById('girisBtn');
         if(!input) { err.innerText = "İSİM YAZINIZ!"; return; }
+
+        btn.disabled = true; // Çift tıklamayı önleyelim
+        btn.innerText = "LÜTFEN BEKLEYİN...";
 
         db.ref('career_players').once('value').then(snap => {
             const players = snap.val() || {};
-            let exists = false, barindirir = false;
+            let exists = false;
+            let barindirir = false;
 
             for(let id in players) {
                 let name = players[id].name;
                 if(name === input) { exists = true; curTotal = players[id].score || 0; break; }
-                if(input.includes(name) || name.includes(input)) { barindirir = true; break; }
+                if(input.length > 2 && (input.includes(name) || name.includes(input)) && name !== input) { barindirir = true; break; }
             }
 
             if(barindirir && !exists) {
                 err.innerText = "BU İSİM VEYA BENZERİ ALINMIŞ!";
+                btn.disabled = false;
+                btn.innerText = "GİRİŞ YAP";
             } else {
                 curUser = input;
                 if(!exists) db.ref('career_players/' + input).set({name: input, score: 0});
+                
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('uPanel').style.display = 'block';
                 document.getElementById('pNameDisp').innerText = curUser;
                 document.getElementById('pScoreDisp').innerText = curTotal;
             }
+        }).catch(e => {
+            console.log("Firebase Error:", e);
+            err.innerText = "BAĞLANTI HATASI!";
+            btn.disabled = false;
+            btn.innerText = "GİRİŞ YAP";
         });
     }
 
@@ -164,8 +160,10 @@
         }, 1000);
     }
 
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // AudioContext için kullanıcı etkileşimi bekleme
+    let audioCtx;
     function playTick(s) {
+        if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
         osc.type = 'square'; osc.frequency.setValueAtTime(s <= 10 ? 350 : 150, audioCtx.currentTime);
         gain.gain.setValueAtTime(s <= 10 ? 0.3 : 0.1, audioCtx.currentTime);
@@ -203,7 +201,8 @@
             if(posY > document.getElementById('slotsContainer').offsetTop - 110) { clearInterval(fallInterval); finishCard(card, val, curSuit); }
         }, 16);
 
-        document.getElementById('mainBody').onclick = (e) => {
+        // Click kontrolü sadece oyun alanında
+        ga.onclick = (e) => {
             if(gameOver || e.target.classList.contains('slot')) return;
             const clickX = e.clientX - ar.left;
             if (clickX < currentPosX + 35) currentPosX -= 45; else currentPosX += 45;
@@ -219,7 +218,7 @@
         card.style.left = (rect.left - ar.left + 5) + 'px';
         card.style.top = (rect.top - ar.top + 5) + 'px';
         card.style.transform = 'scale(0.8)';
-        setTimeout(() => { card.remove(); if(!aktif[s]) bitti("YASAK BÖLGE!"); else guncelle(s, val); }, 150);
+        setTimeout(() => { if(card.parentNode) card.remove(); if(!aktif[s]) bitti("YASAK BÖLGE!"); else guncelle(s, val); }, 150);
     }
 
     function guncelle(s, d) {
@@ -233,12 +232,12 @@
         if(Object.values(aktif).every(v => !v)) bitti("OYUN BİTTİ");
     }
 
-    function slotKapat(s) { if(aktif[s] && !isAnim && !gameOver) { aktif[s] = false; document.getElementById(s).classList.add('closed-slot'); if(Object.values(aktif).every(v => !v)) bitti("KAPATILDI"); } }
+    function slotKapat(s) { if(aktif[s] && !isAnim && !gameOver) { aktif[s] = false; document.getElementById(s).querySelector('.bust-x').style.display = 'flex'; if(Object.values(aktif).every(v => !v)) bitti("KAPATILDI"); } }
 
     function reloadGame() {
         tPuan = 0; saniye = 30; gameOver = false; timerStarted = false; isAnim = false;
         sPuan = {maca:0, kupa:0, sinek:0, karo:0}; aktif = {maca:true, kupa:true, sinek:true, karo:true};
-        document.querySelectorAll('.slot').forEach(el => { el.classList.remove('perfect-21', 'closed-slot'); el.querySelector('.slot-score').innerText = '0'; el.querySelector('.bust-x').style.display = 'none'; });
+        document.querySelectorAll('.slot').forEach(el => { el.classList.remove('perfect-21'); el.querySelector('.slot-score').innerText = '0'; el.querySelector('.bust-x').style.display = 'none'; });
         document.getElementById('toplam').innerText = 'PUAN: 0'; document.getElementById('timerDisplay').innerText = '30';
         document.getElementById('timerGlow').classList.remove('is-running');
         const f = document.querySelector('.score-final'); if(f) f.remove();
@@ -246,15 +245,15 @@
     }
 
     function bitti(msg) {
+        if(gameOver) return;
         gameOver = true; document.getElementById('deck').style.display = 'none';
         let b = 0; if(tPuan >= 50) b = 10 * Math.pow(2, Math.min(Math.floor(tPuan / 50) - 1, 10));
         tPuan += b; curTotal += tPuan;
-        db.ref('career_players/' + curUser).update({score: curTotal});
+        if(curUser) db.ref('career_players/' + curUser).update({score: curTotal});
         document.getElementById('pScoreDisp').innerText = curTotal;
 
         db.ref('career_players').orderByChild('score').limitToLast(5).once('value', snap => {
             let list = []; snap.forEach(c => { list.push(c.val()); }); list.reverse();
-            
             const box = document.createElement('div'); box.className = 'score-final';
             let leaderboardHtml = list.map((r, i) => `
                 <div class="leaderboard-row">
@@ -263,13 +262,7 @@
                     <span class="leaderboard-score">${r.score}</span>
                 </div>
             `).join('');
-
-            box.innerHTML = `
-                <div class="leaderboard-title">DÜNYA KLASMANI (KARİYER)</div>
-                <div style="margin-bottom:20px;">${leaderboardHtml}</div>
-                <div style="font-size:12px; color:white; margin-bottom:10px;">${msg}<br>BU OYUN: ${tPuan}</div>
-                <button onclick="reloadGame()" style="padding:10px 20px; border:none; background:#f1c40f; color:#002200; font-weight:bold; border-radius:10px; cursor:pointer; width:100%;">YENİ OYUN</button>
-            `;
+            box.innerHTML = `<div class="leaderboard-title">DÜNYA KLASMANI (KARİYER)</div><div style="margin-bottom:20px;">${leaderboardHtml}</div><div style="font-size:12px; color:white; margin-bottom:10px;">${msg}<br>BU OYUN: ${tPuan}</div><button onclick="reloadGame()" style="padding:10px 20px; border:none; background:#f1c40f; color:#002200; font-weight:bold; border-radius:10px; cursor:pointer; width:100%;">YENİ OYUN</button>`;
             document.getElementById('gameArea').appendChild(box);
         });
     }
